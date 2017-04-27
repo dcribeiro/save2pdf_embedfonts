@@ -27,9 +27,9 @@ narginchk(0,3);
 
 % If no handle is provided, use the current figure as default
 if nargin<1
-    [fileName,pathName] = uiputfile('*.pdf','Save to PDF file:');
-    if fileName == 0; return; end
-    pdfFilePath = [pathName,fileName];
+    [filename,filedir] = uiputfile('*.pdf','Save to PDF file:');
+    if filename == 0; return; end
+    pdfFilePath = [filedir,filename];
 end
 if nargin<2
     handle = gcf;
@@ -39,11 +39,16 @@ if nargin<3
 end
 
 % get pathname WITH extension
-[basepath,filename,fileext] = fileparts(pdfFilePath);
+[filedir,filename,fileext] = fileparts(pdfFilePath);
 if isempty(fileext)
     fileext = '.pdf';
 end
-pdfFilePath = fullfile(basepath,[filename,fileext]);
+pdfFilePath = fullfile(filedir,[filename,fileext]);
+
+% check if directory exists
+if ~exist(filedir,'dir')
+    error('Directory to save PDF file does not exist!\n\t%s\n',filedir)
+end
 
 if exist(pdfFilePath,'file')
     % delete first...
@@ -56,7 +61,7 @@ if exist(tempname,'file')
     % delete first...
     tempname = strrep(num2str(rand(1)*10000),'.','t');
 end
-pdfTempPath = fullfile(basepath,[tempname,fileext]);
+pdfTempPath = fullfile(filedir,[tempname,fileext]);
 
 % Backup previous settings
 prePaperType = get(handle,'PaperType');
